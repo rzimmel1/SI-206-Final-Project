@@ -1,0 +1,43 @@
+Calculations for weather data were calculated inside the database to make them easier to pull out when graphing. The code for how they were put into the database and averaged will be placed below.
+
+ Average calc:
+# city_averages
+    c.execute('''
+        CREATE TABLE city_averages (
+            city_id INTEGER PRIMARY KEY,
+            average_temperature_2m REAL,
+            average_relative_humidity_2m REAL,
+            average_windspeed_10m REAL,
+            average_precipitation REAL,
+            FOREIGN KEY (city_id) REFERENCES cities(city_id)
+
+      
+      
+# calculate and store average weather data 
+def store_average_weather():
+    conn = sqlite3.connect('weather_data.db')
+    c = conn.cursor()
+    
+    for city in cities:
+        city_name = city["name"]
+        city_id = get_city_id(city_name)
+        
+        c.execute('''
+            SELECT 
+                AVG(temperature_2m), 
+                AVG(relative_humidity_2m), 
+                AVG(windspeed_10m), 
+                AVG(precipitation) 
+            FROM hourly_climate 
+            WHERE city_id=?
+        ''', (city_id,))
+        
+        averages = c.fetchone()
+        
+        c.execute('''
+            INSERT OR REPLACE INTO city_averages (city_id, average_temperature_2m, average_relative_humidity_2m, average_windspeed_10m, average_precipitation)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (city_id, averages[0], averages[1], averages[2], averages[3]))
+
+    conn.commit()
+    conn.close()
