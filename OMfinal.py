@@ -11,10 +11,11 @@ openmeteo = openmeteo_requests.Client(session=retry_session)
 
 # List of cities with their coordinates (latitude, longitude)
 cities = [
-    {"name": "Berlin", "latitude": 52.52, "longitude": 13.41},
-    {"name": "Paris", "latitude": 48.8566, "longitude": 2.3522},
-    {"name": "New York", "latitude": 40.7128, "longitude": -74.0060},
-    {"name": "Tokyo", "latitude": 35.6895, "longitude": 139.6917}
+    {"name": "Phoenix", "latitude": 33.4484, "longitude": -112.0740},
+    {"name": "Denver", "latitude": 39.7392, "longitude": -104.9903},
+    {"name": "Seattle", "latitude": 47.6062, "longitude": -122.3321},
+    {"name": "Minneapolis", "latitude": 44.9778, "longitude": -93.2650},
+    {"name": "Miami", "latitude": 25.7617, "longitude": -80.1918}
 ]
 
 # Function to create the database and tables, dropping the old tables if they exist
@@ -25,6 +26,7 @@ def initialize_db():
     # Drop the tables if they exist
     c.execute('DROP TABLE IF EXISTS hourly_climate')
     c.execute('DROP TABLE IF EXISTS cities')
+    c.execute('DROP TABLE IF EXISTS city_averages')
 
     # Create the cities table
     c.execute('''
@@ -50,6 +52,19 @@ def initialize_db():
             UNIQUE(city_id, date)
         )
     ''')
+
+    # Create the city_averages table
+    c.execute('''
+        CREATE TABLE city_averages (
+            city_id INTEGER PRIMARY KEY,
+            average_temperature_2m REAL,
+            average_relative_humidity_2m REAL,
+            average_windspeed_10m REAL,
+            average_precipitation REAL,
+            FOREIGN KEY (city_id) REFERENCES cities(city_id)
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -99,12 +114,12 @@ def insert_data_to_db(city_id, data):
 
 # Function to fetch data from the API
 def fetch_weather_data(latitude, longitude):
-    url = "https://archive-api.open-meteo.com/v1/archive"  # Ensure we're hitting the right historical endpoint
+    url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "start_date": "2024-11-16",
-        "end_date": "2024-11-29",
+        "start_date": "2018-01-01",
+        "end_date": "2024-12-03",
         "hourly": "temperature_2m,relative_humidity_2m,windspeed_10m,precipitation"
     }
     
@@ -132,6 +147,35 @@ def fetch_weather_data(latitude, longitude):
     hourly_data["precipitation"] = hourly_precipitation
 
     return pd.DataFrame(data=hourly_data)
+
+# Function to calculate and store average weather data for each city
+def store_average_weather():
+    conn = sqlite3.connect('weather_data.db')
+    c = conn.cursor()
+    
+    for city in cities:
+        city_name = city["name"]
+        city_id = get_city_id(city_name)
+        
+        c.execute('''
+            SELECT 
+                AVG(temperature_2m), 
+                AVG(relative_humidity_2m), 
+                AVG(windspeed_10m), 
+                AVG(precipitation) 
+            FROM hourly_climate 
+            WHERE city_id=?
+        ''', (city_id,))
+        
+        averages = c.fetchone()
+        
+        c.execute('''
+            INSERT OR REPLACE INTO city_averages (city_id, average_temperature_2m, average_relative_humidity_2m, average_windspeed_10m, average_precipitation)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (city_id, averages[0], averages[1], averages[2], averages[3]))
+
+    conn.commit()
+    conn.close()
 
 # Main function to orchestrate data fetching and storing process
 def main():
@@ -167,6 +211,8 @@ def main():
             
             existing_row_count += len(data_chunk)
             print(f"Inserted {len(data_chunk)} rows for {city_name}")
+
+    store_average_weather()
 
 if __name__ == "__main__":
     main()
