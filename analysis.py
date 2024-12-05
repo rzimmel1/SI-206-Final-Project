@@ -3,28 +3,28 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import re
 
-#city names
+# Normalize city names to lowercase
 def normalize_city_names(df, column):
     df[column] = df[column].str.lower()
     return df
 
-#Aurora to Denver
+# Map "aurora" to "denver" in city names
 def map_city_names(df, column):
     df[column] = df[column].replace("aurora", "denver")
     return df
 
-#average weather data
+# Fetch average weather data from the unified database
 def fetch_weather_averages(db_path):
     conn = sqlite3.connect(db_path)
     query = '''
-    SELECT c.city_name, 
+    SELECT c.city as city_name, 
            avg.average_temperature_2m as avg_temp,
            avg.average_relative_humidity_2m as avg_humidity,
            avg.average_windspeed_10m as avg_windspeed,
            avg.average_precipitation as avg_precip
     FROM city_averages avg
-    JOIN cities c ON avg.city_id = c.city_id
-    GROUP BY c.city_name
+    JOIN cities c ON avg.city_id = c.id
+    GROUP BY c.city
     '''
     weather_df = pd.read_sql_query(query, conn)
     conn.close()
@@ -34,7 +34,7 @@ def fetch_weather_averages(db_path):
     print(weather_df)
     return weather_df
 
-#car prices
+# Fetch car prices from the unified database
 def fetch_car_prices(db_path):
     conn = sqlite3.connect(db_path)
     query = '''
@@ -51,7 +51,7 @@ def fetch_car_prices(db_path):
     print(price_data)
     return price_data
 
-#calculate average depreciation
+# Calculate average depreciation
 def calculate_depreciation(price_data):
     depreciation_data = []
 
@@ -76,14 +76,14 @@ def calculate_depreciation(price_data):
     print(depreciation_df)
     return depreciation_df
 
-#merge dataframes
+# Merge weather and depreciation dataframes
 def merge_data(weather_df, depreciation_df):
     merged_df = pd.merge(depreciation_df, weather_df, left_on='city', right_on='city_name')
     print("Merged Data:")
     print(merged_df)
     return merged_df
 
-#plot the data
+# Plot the data
 def plot_data(merged_df):
     plt.figure(figsize=(18, 6))
 
@@ -145,12 +145,11 @@ def plot_data(merged_df):
     plt.show()
 
 def main():
-    weather_db_path = 'weather_data.db'
-    car_db_path = 'car_data.db'
+    db_path = 'unified_data.db'
 
     # Fetch data
-    weather_df = fetch_weather_averages(weather_db_path)
-    price_data = fetch_car_prices(car_db_path)
+    weather_df = fetch_weather_averages(db_path)
+    price_data = fetch_car_prices(db_path)
 
     # Calculate depreciation
     depreciation_df = calculate_depreciation(price_data)

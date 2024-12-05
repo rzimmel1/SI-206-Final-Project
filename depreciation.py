@@ -4,7 +4,7 @@ import sqlite3
 import re
 
 def get_average_price_by_year_and_city(year, city_id):
-    conn = sqlite3.connect('car_data.db')
+    conn = sqlite3.connect('unified_data.db')
     c = conn.cursor()
     
     c.execute('''SELECT price FROM prices 
@@ -20,7 +20,7 @@ def get_average_price_by_year_and_city(year, city_id):
         return None
 
 def calculate_average_depreciation_by_city():
-    conn = sqlite3.connect('car_data.db')
+    conn = sqlite3.connect('unified_data.db')
     c = conn.cursor()
     
     c.execute('''SELECT id, city, state FROM cities''')
