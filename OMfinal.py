@@ -4,12 +4,11 @@ import requests_cache
 import pandas as pd
 from retry_requests import retry
 
-# Setup API 
 cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
 retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
 openmeteo = openmeteo_requests.Client(session=retry_session)
 
-# Define the city details with state, zip_code, latitude, and longitude
+#city details with state, zip_code, latitude, and longitude
 city_details = {
     "phoenix": {"state": "az", "zip_code": "85001", "latitude": 33.4484, "longitude": -112.0740},
     "seattle": {"state": "wa", "zip_code": "98101", "latitude": 47.6062, "longitude": -122.3321},
@@ -18,9 +17,9 @@ city_details = {
     "aurora": {"state": "co", "zip_code": "80019", "latitude": 39.7392, "longitude": -104.9903},  # Aurora coordinates as per your requirement
 }
 
-# Create the database and tables if they do not exist
+
 def initialize_db():
-    conn = sqlite3.connect('unified_data.db')  # Use the unified database name
+    conn = sqlite3.connect('unified_data.db')
     c = conn.cursor()
 
     # Create the cities table if it does not exist
@@ -99,7 +98,7 @@ def insert_data_to_db(city_id, data, rows_needed):
     conn.close()
     return rows_inserted
 
-# Fetch data from the API
+# fetch data from the API
 def fetch_weather_data(latitude, longitude, start_offset):
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
@@ -125,7 +124,7 @@ def fetch_weather_data(latitude, longitude, start_offset):
         freq=pd.Timedelta(seconds=hourly.Interval())
     )
 
-    # Convert to DataFrame for easier manipulation
+
     df = pd.DataFrame({
         'time': time_range,
         'temperature_2m': hourly_temperature_2m,
@@ -134,18 +133,17 @@ def fetch_weather_data(latitude, longitude, start_offset):
         'precipitation': hourly_precipitation
     })
 
-    # Filter to get one hour per day (e.g., 12:00 PM)
+    # filter to get one hour per day
     df['date'] = df['time'].dt.date
     df['hour'] = df['time'].dt.hour
-    df_filtered = df[df['hour'] == 12]  # Change 12 to any specific hour you want
+    df_filtered = df[df['hour'] == 12]
 
-    # Reset index and return the filtered data
     df_filtered = df_filtered.reset_index(drop=True)
     return df_filtered
 
-# Calculate and store average weather data
+# calculate and store average weather data
 def store_average_weather():
-    conn = sqlite3.connect('unified_data.db')  # Update to unified_data.db
+    conn = sqlite3.connect('unified_data.db') 
     c = conn.cursor()
 
     for city_name, details in city_details.items():

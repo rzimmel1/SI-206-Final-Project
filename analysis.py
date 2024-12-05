@@ -1,8 +1,9 @@
 import sqlite3
 import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
-# Normalize city names to lowercase
+
 def normalize_city_names(df, column):
     df[column] = df[column].str.lower()
     return df
@@ -55,7 +56,7 @@ def plot_data(merged_df):
                          textcoords="offset points", xytext=(0,10), ha='center')
 
     plt.title('Temperature vs Car Depreciation')
-    plt.xlabel('Average Temperature (°C)')
+    plt.xlabel('Average Daily Temperature (°C)')
     plt.ylabel('Depreciation (%)')
     plt.ylim(35, 50)
     plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
@@ -72,7 +73,7 @@ def plot_data(merged_df):
                          textcoords="offset points", xytext=(0,10), ha='center')
     
     plt.title('Humidity vs Car Depreciation')
-    plt.xlabel('Average Humidity (%)')
+    plt.xlabel('Average Daily Humidity (%)')
     plt.ylabel('Depreciation (%)')
     plt.ylim(35, 50)
     plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
@@ -89,7 +90,7 @@ def plot_data(merged_df):
                          textcoords="offset points", xytext=(0,10), ha='center')
     
     plt.title('Precipitation vs Car Depreciation')
-    plt.xlabel('Average Precipitation (mm)')
+    plt.xlabel('Average Daily Precipitation (mm)')
     plt.ylabel('Depreciation (%)')
     plt.ylim(35, 50)
     plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
@@ -98,13 +99,12 @@ def plot_data(merged_df):
     plt.tight_layout()
     plt.show()
 
+
 def main():
     db_path = 'unified_data.db'
 
-    # Fetch combined data from the database
     combined_df = fetch_combined_data(db_path)
 
-    # Plot data
     plot_data(combined_df)
 
 if __name__ == "__main__":

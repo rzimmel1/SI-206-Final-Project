@@ -1,0 +1,18 @@
+These calculations were done inside of depreciation.py and inserted into unified_data.db to make ploting easier
+I used this formula to do the calculations: ((avg_price_new - avg_price_6_year_old) / avg_price_new) * 100
+
+Average depreciation in aurora, co: 43.79% (value decreased)
+  Average price of a new car: $46050.09
+  Average price of a 6-year-old car: $25882.49
+Average depreciation in miami, fl: 49.59% (value decreased)
+  Average price of a new car: $38351.45
+  Average price of a 6-year-old car: $19334.12
+Average depreciation in minneapolis, mn: 48.33% (value decreased)
+  Average price of a new car: $41461.62
+  Average price of a 6-year-old car: $21425.00
+Average depreciation in phoenix, az: 45.57% (value decreased)
+  Average price of a new car: $42084.56
+  Average price of a 6-year-old car: $22906.58
+Average depreciation in seattle, wa: 41.77% (value decreased)
+  Average price of a new car: $47352.37
+  Average price of a 6-year-old car: $27574.29

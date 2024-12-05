@@ -15,7 +15,6 @@ def scrape_car_data(make, model, year, city, state, zip_code):
     
     soup = BeautifulSoup(response.text, 'html.parser')
     
-    # Example: Extracting price (this will depend on the actual HTML structure)
     price_tags = soup.find_all('div', class_="text-size-600 text-ultra-bold first-price")
     prices = [price_tag.text.strip() for price_tag in price_tags if price_tag.text != '']
     
@@ -56,7 +55,7 @@ def setup_database():
     conn.close()
 
 def store_car_and_city(car_data, city, state, zip_code, latitude=None, longitude=None):
-    conn = sqlite3.connect('unified_data.db')  # Use the same unified database name
+    conn = sqlite3.connect('unified_data.db')
     c = conn.cursor()
     
     # Insert city data and get the city_id
@@ -83,7 +82,7 @@ def store_car_and_city(car_data, city, state, zip_code, latitude=None, longitude
     return car_id, city_id
 
 def store_prices(car_id, city_id, prices):
-    conn = sqlite3.connect('car_data.db')
+    conn = sqlite3.connect('unified_data.db')
     c = conn.cursor()
     
     # Insert prices data
