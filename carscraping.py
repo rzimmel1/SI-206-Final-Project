@@ -42,6 +42,16 @@ def setup_database():
                   FOREIGN KEY(car_id) REFERENCES cars(id),
                   FOREIGN KEY(city_id) REFERENCES cities(id),
                   UNIQUE(car_id, city_id, price))''')
+    c.execute('''CREATE TABLE IF NOT EXISTS car_depreciation (
+            city_id INTEGER PRIMARY KEY,
+            city TEXT,
+            state TEXT,
+            depreciation REAL,
+            avg_new_price REAL,
+            avg_old_price REAL,
+            FOREIGN KEY (city_id) REFERENCES cities(id)
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -108,7 +118,7 @@ def main():
     }
 
     total_prices_added = 0
-    max_new_prices_per_run = 25
+    max_new_prices_per_run = 15
 
     for make, model, year in cars:
         for city, details in cities.items():

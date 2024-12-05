@@ -45,9 +45,32 @@ def calculate_average_depreciation_by_city():
     
     return depreciation_by_city
 
-if __name__ == "__main__":
-    # Calculate and print average depreciation by city using all cars
+def store_depreciation_data(depreciation_by_city):
+    conn = sqlite3.connect('unified_data.db')
+    c = conn.cursor()
+    
+    for city_state, data in depreciation_by_city.items():
+        city, state = city_state.split(", ")
+        depreciation, avg_new_price, avg_old_price = data
+        c.execute('''
+            INSERT OR REPLACE INTO car_depreciation 
+            (city_id, city, state, depreciation, avg_new_price, avg_old_price)
+            VALUES (
+                (SELECT id FROM cities WHERE city = ? AND state = ?), 
+                ?, ?, ?, ?, ?
+            )
+        ''', (city, state, city, state, depreciation, avg_new_price, avg_old_price))
+    
+    conn.commit()
+    conn.close()
+
+def main():
+    #setup_database()
+    
+    # Calculate and store average depreciation by city using all cars
     depreciation_by_city = calculate_average_depreciation_by_city()
+    store_depreciation_data(depreciation_by_city)
+    
     for city, data in depreciation_by_city.items():
         depreciation, avg_price_new, avg_price_old = data
         if depreciation > 0:
@@ -58,4 +81,8 @@ if __name__ == "__main__":
             print(f"Average depreciation in {city}: {depreciation:.2f}% (value remained the same)")
         print(f"  Average price of a new car: ${avg_price_new:.2f}")
         print(f"  Average price of a 6-year-old car: ${avg_price_old:.2f}")
+
+if __name__ == "__main__":
+    main()
+
 

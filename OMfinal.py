@@ -183,7 +183,7 @@ def main():
     initialize_db()
     
     total_rows_inserted = 0
-    max_total_rows_per_run = 25
+    max_total_rows_per_run = 15
     rows_per_city = max_total_rows_per_run // len(city_details)
 
     for city_name, details in city_details.items():
