@@ -110,6 +110,7 @@ def insert_data_to_db(city_id, data, rows_needed):
     conn.close()
     return rows_inserted
 
+
 # Fetch data from the API
 def fetch_weather_data(latitude, longitude, start_offset):
     url = "https://archive-api.open-meteo.com/v1/archive"
@@ -136,21 +137,23 @@ def fetch_weather_data(latitude, longitude, start_offset):
         freq=pd.Timedelta(seconds=hourly.Interval())
     )
 
-    time_range = time_range[start_offset:start_offset + 25]
-    hourly_temperature_2m = hourly_temperature_2m[start_offset:start_offset + 25]
-    hourly_humidity = hourly_humidity[start_offset:start_offset + 25]
-    hourly_wind_speed = hourly_wind_speed[start_offset:start_offset + 25]
-    hourly_precipitation = hourly_precipitation[start_offset:start_offset + 25]
+    # Convert to DataFrame for easier manipulation
+    df = pd.DataFrame({
+        'time': time_range,
+        'temperature_2m': hourly_temperature_2m,
+        'relative_humidity_2m': hourly_humidity,
+        'windspeed_10m': hourly_wind_speed,
+        'precipitation': hourly_precipitation
+    })
 
-    hourly_data = {
-        "date": time_range,
-        "temperature_2m": hourly_temperature_2m,
-        "relative_humidity_2m": hourly_humidity,
-        "windspeed_10m": hourly_wind_speed,
-        "precipitation": hourly_precipitation
-    }
+    # Filter to get one hour per day (e.g., 12:00 PM)
+    df['date'] = df['time'].dt.date
+    df['hour'] = df['time'].dt.hour
+    df_filtered = df[df['hour'] == 12]  # Change 12 to any specific hour you want
 
-    return pd.DataFrame(data=hourly_data)
+    # Reset index and return the filtered data
+    df_filtered = df_filtered.reset_index(drop=True)
+    return df_filtered
 
 # Calculate and store average weather data
 def store_average_weather():
@@ -203,22 +206,21 @@ def main():
         existing_row_count = c.fetchone()[0]
         conn.close()
 
-        if existing_row_count < 100:
+        if existing_row_count < 20:
             start_offset = existing_row_count
             df = fetch_weather_data(latitude, longitude, start_offset)
 
             df['date'] = df['date'].astype(str)
-
-            rows_needed = min(rows_per_city, 100 - existing_row_count, 25 - total_rows_inserted)
+            rows_needed = min(rows_per_city, 100 - existing_row_count)
             rows_inserted = insert_data_to_db(city_id, df, rows_needed)
-            
             total_rows_inserted += rows_inserted
-            print(f"Inserted {rows_inserted} rows for {city_name}. Total so far: {total_rows_inserted} rows.")
-            
-            if total_rows_inserted >= 25:
-                break
-
-    store_average_weather()
+        else:
+            start_offset = existing_row_count
+            df = fetch_weather_data(latitude, longitude, start_offset)
+            df['date'] = df['date'].astype(str)
+            rows_inserted = insert_data_to_db(city_id, df, len(df))
+            total_rows_inserted += rows_inserted
+            store_average_weather()
 
 if __name__ == "__main__":
     main()

@@ -20,7 +20,8 @@ def fetch_weather_averages(db_path):
     SELECT c.city_name, 
            avg.average_temperature_2m as avg_temp,
            avg.average_relative_humidity_2m as avg_humidity,
-           avg.average_windspeed_10m as avg_windspeed
+           avg.average_windspeed_10m as avg_windspeed,
+           avg.average_precipitation as avg_precip
     FROM city_averages avg
     JOIN cities c ON avg.city_id = c.city_id
     GROUP BY c.city_name
@@ -84,13 +85,13 @@ def merge_data(weather_df, depreciation_df):
 
 #plot the data
 def plot_data(merged_df):
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(18, 6))
 
     colors = ['blue', 'green', 'red', 'purple', 'orange']
     city_colors = dict(zip(merged_df['city'].unique(), colors))
 
     # Scatter plot for temperature vs depreciation
-    plt.subplot(1, 2, 1)
+    plt.subplot(1, 3, 1)
     for city, color in city_colors.items():
         city_data = merged_df[merged_df['city'] == city]
         plt.scatter(city_data['avg_temp'], city_data['depreciation'], color=color, label=city.title())
@@ -107,7 +108,7 @@ def plot_data(merged_df):
     plt.legend()
 
     # Scatter plot for humidity vs depreciation
-    plt.subplot(1, 2, 2)
+    plt.subplot(1, 3, 2)
     for city, color in city_colors.items():
         city_data = merged_df[merged_df['city'] == city]
         plt.scatter(city_data['avg_humidity'], city_data['depreciation'], color=color, label=city.title())
@@ -118,6 +119,23 @@ def plot_data(merged_df):
     
     plt.title('Humidity vs Car Depreciation')
     plt.xlabel('Average Humidity (%)')
+    plt.ylabel('Depreciation (%)')
+    plt.ylim(35, 50)
+    plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
+    plt.legend()
+
+    # Scatter plot for precipitation vs depreciation
+    plt.subplot(1, 3, 3)
+    for city, color in city_colors.items():
+        city_data = merged_df[merged_df['city'] == city]
+        plt.scatter(city_data['avg_precip'], city_data['depreciation'], color=color, label=city.title())
+        for i in range(len(city_data)):
+            plt.annotate(city_data['city'].values[i].title(), 
+                         (city_data['avg_precip'].values[i], city_data['depreciation'].values[i]), 
+                         textcoords="offset points", xytext=(0,10), ha='center')
+    
+    plt.title('Precipitation vs Car Depreciation')
+    plt.xlabel('Average Precipitation (mm)')
     plt.ylabel('Depreciation (%)')
     plt.ylim(35, 50)
     plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
