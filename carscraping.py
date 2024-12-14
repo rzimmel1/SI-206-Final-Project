@@ -117,7 +117,7 @@ def main():
     }
 
     total_prices_added = 0
-    max_new_prices_per_run = 15
+    max_new_prices_per_run = 25
 
     for make, model, year in cars:
         for city, details in cities.items():

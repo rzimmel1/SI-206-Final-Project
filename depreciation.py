@@ -1,4 +1,4 @@
-# calculates the depreciation of the cars in our database
+# calculates the depreciation of the cars in our database and calculates weather averages
 
 import sqlite3
 import re
@@ -64,8 +64,38 @@ def store_depreciation_data(depreciation_by_city):
     conn.commit()
     conn.close()
 
+def store_average_weather():
+    conn = sqlite3.connect('unified_data.db') 
+    c = conn.cursor()
+
+    c.execute('SELECT id, city FROM cities')
+    cities = c.fetchall()
+
+    for city_id, city_name in cities:
+        c.execute('''
+            SELECT 
+                AVG(temperature_2m) AS avg_temp, 
+                AVG(relative_humidity_2m) AS avg_humidity, 
+                AVG(windspeed_10m) AS avg_windspeed,
+                AVG(precipitation) AS avg_precip
+            FROM hourly_climate 
+            WHERE city_id=?
+        ''', (city_id,))
+        
+        averages = c.fetchone()
+        if averages is None:
+            continue
+        
+        c.execute('''
+            INSERT OR REPLACE INTO city_averages (city_id, average_temperature_2m, average_relative_humidity_2m, average_windspeed_10m, average_precipitation)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (city_id, averages[0], averages[1], averages[2], averages[3]))
+
+    conn.commit()
+    conn.close()
+
 def main():
-    #setup_database()
+    store_average_weather()
     
     # Calculate and store average depreciation by city using all cars
     depreciation_by_city = calculate_average_depreciation_by_city()

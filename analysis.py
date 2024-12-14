@@ -1,7 +1,6 @@
 import sqlite3
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 
 
 def normalize_city_names(df, column):
@@ -57,8 +56,8 @@ def plot_data(merged_df):
 
     plt.title('Temperature vs Car Depreciation')
     plt.xlabel('Average Daily Temperature (°C)')
-    plt.ylabel('Depreciation (%)')
-    plt.ylim(35, 50)
+    plt.ylabel('Average Depreciation (%)')
+    plt.ylim(35, 52)
     plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
     plt.legend()
 
@@ -74,8 +73,8 @@ def plot_data(merged_df):
     
     plt.title('Humidity vs Car Depreciation')
     plt.xlabel('Average Daily Humidity (%)')
-    plt.ylabel('Depreciation (%)')
-    plt.ylim(35, 50)
+    plt.ylabel('Average Depreciation (%)')
+    plt.ylim(35, 52)
     plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
     plt.legend()
 
@@ -91,8 +90,8 @@ def plot_data(merged_df):
     
     plt.title('Precipitation vs Car Depreciation')
     plt.xlabel('Average Daily Precipitation (mm)')
-    plt.ylabel('Depreciation (%)')
-    plt.ylim(35, 50)
+    plt.ylabel('Average Depreciation (%)')
+    plt.ylim(35, 52)
     plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
     plt.legend()
 

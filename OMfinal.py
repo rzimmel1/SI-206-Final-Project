@@ -141,41 +141,6 @@ def fetch_weather_data(latitude, longitude, start_offset):
     df_filtered = df_filtered.reset_index(drop=True)
     return df_filtered
 
-# calculate and store average weather data
-def store_average_weather():
-    conn = sqlite3.connect('unified_data.db') 
-    c = conn.cursor()
-
-    for city_name, details in city_details.items():
-        state = details['state']
-        zip_code = details['zip_code']
-        city_id = get_city_id(city_name, state, zip_code)
-        if city_id is None:
-            print(f"Skipping city: {city_name}, {state}, {zip_code} because it was not found in the database.")
-            continue
-        
-        c.execute('''
-            SELECT 
-                AVG(temperature_2m) AS avg_temp, 
-                AVG(relative_humidity_2m) AS avg_humidity, 
-                AVG(windspeed_10m) AS avg_windspeed,
-                AVG(precipitation) AS avg_precip
-            FROM hourly_climate 
-            WHERE city_id=?
-        ''', (city_id,))
-        
-        averages = c.fetchone()
-        if averages is None:
-            continue
-        
-        c.execute('''
-            INSERT OR REPLACE INTO city_averages (city_id, average_temperature_2m, average_relative_humidity_2m, average_windspeed_10m, average_precipitation)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (city_id, averages[0], averages[1], averages[2], averages[3]))
-
-    conn.commit()
-    conn.close()
-
 # Main function 
 def main():
     initialize_db()
@@ -214,7 +179,6 @@ def main():
             df['date'] = df['date'].astype(str)
             rows_inserted = insert_data_to_db(city_id, df, len(df))
             total_rows_inserted += rows_inserted
-            store_average_weather()
 
 if __name__ == "__main__":
     main()
