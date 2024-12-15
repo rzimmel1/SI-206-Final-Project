@@ -58,7 +58,6 @@ def plot_data(merged_df):
     plt.xlabel('Average Daily Temperature (°C)')
     plt.ylabel('Average Depreciation (%)')
     plt.ylim(35, 52)
-    plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
     plt.legend()
 
     # Scatter plot for humidity vs depreciation
@@ -75,7 +74,6 @@ def plot_data(merged_df):
     plt.xlabel('Average Daily Humidity (%)')
     plt.ylabel('Average Depreciation (%)')
     plt.ylim(35, 52)
-    plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
     plt.legend()
 
     # Scatter plot for precipitation vs depreciation
@@ -92,7 +90,6 @@ def plot_data(merged_df):
     plt.xlabel('Average Daily Precipitation (mm)')
     plt.ylabel('Average Depreciation (%)')
     plt.ylim(35, 52)
-    plt.axhline(y=40, color='gray', linestyle='--', linewidth=0.7)
     plt.legend()
 
     plt.tight_layout()
