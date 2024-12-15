@@ -94,6 +94,25 @@ def store_average_weather():
     conn.commit()
     conn.close()
 
+def fetch_weather_data_by_city():
+    conn = sqlite3.connect('unified_data.db')
+    c = conn.cursor()
+    
+    c.execute('''
+    SELECT c.city, c.state, ca.average_temperature_2m, ca.average_relative_humidity_2m, ca.average_windspeed_10m, ca.average_precipitation
+    FROM city_averages ca
+    JOIN cities c ON ca.city_id = c.id
+    ''')
+    
+    weather_data = c.fetchall()
+    conn.close()
+    
+    weather_by_city = {}
+    for city, state, avg_temp, avg_humidity, avg_windspeed, avg_precip in weather_data:
+        weather_by_city[f"{city}, {state}"] = (avg_temp, avg_humidity, avg_windspeed, avg_precip)
+    
+    return weather_by_city
+
 def main():
     store_average_weather()
     
@@ -101,16 +120,34 @@ def main():
     depreciation_by_city = calculate_average_depreciation_by_city()
     store_depreciation_data(depreciation_by_city)
     
-    for city, data in depreciation_by_city.items():
-        depreciation, avg_price_new, avg_price_old = data
-        if depreciation > 0:
-            print(f"Average depreciation in {city}: {depreciation:.2f}% (value decreased)")
-        elif depreciation < 0:
-            print(f"Average depreciation in {city}: {depreciation:.2f}% (value increased)")
-        else:
-            print(f"Average depreciation in {city}: {depreciation:.2f}% (value remained the same)")
-        print(f"  Average price of a new car: ${avg_price_new:.2f}")
-        print(f"  Average price of a 6-year-old car: ${avg_price_old:.2f}")
+    # Fetch weather data by city
+    weather_by_city = fetch_weather_data_by_city()
+    
+    with open('depreciation_report.txt', 'w') as file:
+        for city, data in depreciation_by_city.items():
+            depreciation, avg_price_new, avg_price_old = data
+            avg_temp, avg_humidity, avg_windspeed, avg_precip = weather_by_city.get(city, (None, None, None, None))
+            
+            file.write(f"City: {city}\n")
+            if depreciation > 0:
+                file.write(f"  Average depreciation: {depreciation:.2f}% (value decreased)\n")
+            elif depreciation < 0:
+                file.write(f"  Average depreciation: {depreciation:.2f}% (value increased)\n")
+            else:
+                file.write(f"  Average depreciation: {depreciation:.2f}% (value remained the same)\n")
+            file.write(f"  Average price of a new car: ${avg_price_new:.2f}\n")
+            file.write(f"  Average price of a 6-year-old car: ${avg_price_old:.2f}\n")
+            
+            if avg_temp is not None:
+                file.write(f"  Average temperature: {avg_temp:.2f}°C\n")
+            if avg_humidity is not None:
+                file.write(f"  Average humidity: {avg_humidity:.2f}%\n")
+            if avg_windspeed is not None:
+                file.write(f"  Average windspeed: {avg_windspeed:.2f} m/s\n")
+            if avg_precip is not None:
+                file.write(f"  Average precipitation: {avg_precip:.2f} mm\n")
+            
+            file.write("\n")
 
 if __name__ == "__main__":
     main()

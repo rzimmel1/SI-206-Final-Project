@@ -99,7 +99,7 @@ def insert_data_to_db(city_id, data, rows_needed):
     return rows_inserted
 
 # fetch data from the API
-def fetch_weather_data(latitude, longitude, start_offset):
+def fetch_weather_data(latitude, longitude):
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
         "latitude": latitude,

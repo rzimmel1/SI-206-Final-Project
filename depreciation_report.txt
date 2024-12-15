@@ -1,0 +1,45 @@
+City: aurora, co
+  Average depreciation: 43.79% (value decreased)
+  Average price of a new car: $46050.09
+  Average price of a 6-year-old car: $25882.49
+  Average temperature: 3.69°C
+  Average humidity: 68.16%
+  Average windspeed: 7.65 m/s
+  Average precipitation: 0.03 mm
+
+City: miami, fl
+  Average depreciation: 49.59% (value decreased)
+  Average price of a new car: $38351.45
+  Average price of a 6-year-old car: $19334.12
+  Average temperature: 23.51°C
+  Average humidity: 82.44%
+  Average windspeed: 11.68 m/s
+  Average precipitation: 0.09 mm
+
+City: minneapolis, mn
+  Average depreciation: 48.33% (value decreased)
+  Average price of a new car: $41461.62
+  Average price of a 6-year-old car: $21425.00
+  Average temperature: 4.59°C
+  Average humidity: 82.50%
+  Average windspeed: 10.42 m/s
+  Average precipitation: 0.10 mm
+
+City: phoenix, az
+  Average depreciation: 45.57% (value decreased)
+  Average price of a new car: $42084.56
+  Average price of a 6-year-old car: $22906.58
+  Average temperature: 17.90°C
+  Average humidity: 47.82%
+  Average windspeed: 8.19 m/s
+  Average precipitation: 0.03 mm
+
+City: seattle, wa
+  Average depreciation: 41.77% (value decreased)
+  Average price of a new car: $47352.37
+  Average price of a 6-year-old car: $27574.29
+  Average temperature: 8.53°C
+  Average humidity: 86.54%
+  Average windspeed: 10.23 m/s
+  Average precipitation: 0.12 mm
+
